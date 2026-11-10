@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import { useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
@@ -54,6 +55,19 @@ export default function ExploreScreen() {
           ? `Selected: ${selectedMood}`
           : "Select a mood to continue"}
       </Text>
+
+      <Pressable
+        style={[styles.continueButton, !selectedMood && styles.disabledButton]}
+        disabled={!selectedMood}
+        onPress={() =>
+          router.push({
+            pathname: "/challenge",
+            params: { mood: selectedMood! },
+          })
+        }
+      >
+        <Text style={styles.continueButtonText}>Continue</Text>
+      </Pressable>
     </ScrollView>
   );
 }
@@ -117,5 +131,20 @@ const styles = StyleSheet.create({
     color: "#777080",
     fontSize: 14,
     marginTop: 28,
+  },
+  continueButton: {
+    backgroundColor: "#594D78",
+    padding: 18,
+    borderRadius: 16,
+    alignItems: "center",
+    marginTop: 20,
+  },
+  disabledButton: {
+    backgroundColor: "#D8D1DF",
+  },
+  continueButtonText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#FFFFFF",
   },
 });
