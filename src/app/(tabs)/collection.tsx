@@ -1,4 +1,4 @@
-import { loadRewards, resetApp } from "@/lib/storage";
+import { loadRewards, resetApp, saveRewards } from "@/lib/storage";
 import type { Reward } from "@/lib/types";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
@@ -55,6 +55,28 @@ export default function CollectionScreen() {
     });
   }
 
+  async function handleDeleteReward(item: Reward) {
+    Alert.alert(
+      "Delete reward?",
+      "This reward will be removed from your collection.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            const updatedRewards = savedRewards.filter(
+              (reward) => reward !== item,
+            );
+
+            await saveRewards(JSON.stringify(updatedRewards));
+            setSavedRewards(updatedRewards);
+          },
+        },
+      ],
+    );
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>My Collection</Text>
@@ -65,6 +87,14 @@ export default function CollectionScreen() {
         keyExtractor={(item, index) => `${item.mood}-${index}`}
         renderItem={({ item }) => (
           <Pressable style={styles.rewardCard} onPress={() => openReward(item)}>
+            <Pressable
+              style={styles.deleteButton}
+              onPress={() => handleDeleteReward(item)}
+              hitSlop={8}
+            >
+              <Text style={styles.deleteButtonText}>×</Text>
+            </Pressable>
+
             <Text style={styles.mood}>{item.mood}</Text>
             <Text style={styles.meme}>{item.meme}</Text>
             <Text style={styles.caption}>{item.caption}</Text>
@@ -133,6 +163,18 @@ const styles = StyleSheet.create({
   },
   resetButtonText: {
     fontSize: 14,
+    color: "#A45D5D",
+    fontWeight: "600",
+  },
+  deleteButton: {
+    position: "absolute",
+    top: 10,
+    right: 12,
+    paddingHorizontal: 8,
+    zIndex: 1,
+  },
+  deleteButtonText: {
+    fontSize: 23,
     color: "#A45D5D",
     fontWeight: "600",
   },
