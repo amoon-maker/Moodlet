@@ -1,8 +1,4 @@
-export type Quote = {
-  id: number;
-  quote: string;
-  author: string;
-};
+import type { Quote } from "@/lib/types";
 
 export async function fetchQuote(): Promise<Quote> {
   const response = await fetch("https://dummyjson.com/quotes/random");

@@ -1,9 +1,20 @@
-import { fetchQuote, type Quote } from "@/lib/api";
 import { loadRewards, saveRewards } from "@/lib/storage";
+import type { Quote } from "@/lib/types";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
+export async function fetchQuote(): Promise<Quote> {
+  const response = await fetch("https://dummyjson.com/quotes/random");
+
+  if (!response.ok) {
+    throw new Error("Could not load a quote.");
+  }
+
+  const data: Quote = await response.json();
+
+  return data;
+}
 const rewards = [
   {
     mood: "Happy",
