@@ -1,5 +1,6 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { loadRewards, saveRewards } from "@/lib/storage";
 
 const rewards = [
   {
@@ -33,6 +34,17 @@ export default function RewardScreen() {
   const { mood } = useLocalSearchParams<{ mood: string }>();
   const selectedReward = rewards.find((item) => item.mood === mood);
 
+  async function handleSaveReward() {
+  if (!selectedReward) return;
+
+  const savedRewards = await loadRewards();
+  const updatedRewards = [...savedRewards, selectedReward];
+
+  await saveRewards(JSON.stringify(updatedRewards));
+
+  router.push("/collection");
+}
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>A little reward for you!</Text>
@@ -46,7 +58,7 @@ export default function RewardScreen() {
       <Text style={styles.caption}>{selectedReward?.caption}</Text>
       <Pressable
         style={styles.saveButton}
-        onPress={() => router.push("/collection")}
+        onPress={handleSaveReward}
       >
         <Text style={styles.saveButtonText}>Save reward</Text>
       </Pressable>
