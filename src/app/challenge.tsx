@@ -1,5 +1,4 @@
-import { useLocalSearchParams } from "expo-router";
-import { useState } from "react";
+import { router, useLocalSearchParams } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 const challenges = [
@@ -26,7 +25,6 @@ const challenges = [
 ];
 export default function ChallengeScreen() {
   const { mood } = useLocalSearchParams<{ mood: string }>();
-  const [completed, setCompleted] = useState(false);
   const selectedChallenge = challenges.find((item) => item.mood === mood);
 
   return (
@@ -41,11 +39,14 @@ export default function ChallengeScreen() {
 
       <Pressable
         style={styles.completeButton}
-        onPress={() => setCompleted(true)}
+        onPress={() =>
+          router.push({
+            pathname: "/reward",
+            params: { mood: mood },
+          })
+        }
       >
-        <Text style={styles.completeButtonText}>
-          {completed ? "Challenge completed!" : "I did it!"}
-        </Text>
+        <Text style={styles.completeButtonText}>I did it!</Text>
       </Pressable>
     </View>
   );
