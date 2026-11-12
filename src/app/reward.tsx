@@ -1,6 +1,8 @@
-import { router, useLocalSearchParams } from "expo-router";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { fetchQuote, type Quote } from "@/lib/api";
 import { loadRewards, saveRewards } from "@/lib/storage";
+import { router, useLocalSearchParams } from "expo-router";
+import { useEffect, useState } from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 const rewards = [
   {
@@ -30,20 +32,46 @@ const rewards = [
   },
 ];
 
+const fallbackQuote: Quote = {
+  id: 0,
+  quote: "Every day is a fresh start.",
+  author: "Moodlet",
+};
+
 export default function RewardScreen() {
   const { mood } = useLocalSearchParams<{ mood: string }>();
   const selectedReward = rewards.find((item) => item.mood === mood);
 
+  const [quote, setQuote] = useState<Quote | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    async function getQuote() {
+      try {
+        const data = await fetchQuote();
+        setQuote(data);
+      } catch (error) {
+        setQuote(fallbackQuote);
+        setHasError(true);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    getQuote();
+  }, []);
+
   async function handleSaveReward() {
-  if (!selectedReward) return;
+    if (!selectedReward) return;
 
-  const savedRewards = await loadRewards();
-  const updatedRewards = [...savedRewards, selectedReward];
+    const savedRewards = await loadRewards();
+    const updatedRewards = [...savedRewards, selectedReward];
 
-  await saveRewards(JSON.stringify(updatedRewards));
+    await saveRewards(JSON.stringify(updatedRewards));
 
-  router.push("/collection");
-}
+    router.push("/collection");
+  }
 
   return (
     <View style={styles.container}>
@@ -53,15 +81,30 @@ export default function RewardScreen() {
         You did it! Here's a little something for your {mood?.toLowerCase()}{" "}
         day.
       </Text>
-      <Text style={styles.meme}>{selectedReward?.meme}</Text>
 
+      <Text style={styles.meme}>{selectedReward?.meme}</Text>
       <Text style={styles.caption}>{selectedReward?.caption}</Text>
-      <Pressable
-        style={styles.saveButton}
-        onPress={handleSaveReward}
-      >
+
+      <View style={styles.quoteBox}>
+        <Text style={styles.quoteTitle}>A little extra positivity</Text>
+
+        {isLoading ? (
+          <Text style={styles.quoteText}>Loading quote...</Text>
+        ) : (
+          <>
+            <Text style={styles.quoteText}>"{quote?.quote}"</Text>
+            <Text style={styles.quoteAuthor}>— {quote?.author}</Text>
+            {hasError && (
+              <Text style={styles.offlineText}>Offline quote shown.</Text>
+            )}
+          </>
+        )}
+      </View>
+
+      <Pressable style={styles.saveButton} onPress={handleSaveReward}>
         <Text style={styles.saveButtonText}>Save reward</Text>
       </Pressable>
+
       <Pressable
         style={styles.continueButton}
         onPress={() => router.push("/explore")}
@@ -105,12 +148,40 @@ const styles = StyleSheet.create({
     textAlign: "center",
     lineHeight: 24,
   },
+  quoteBox: {
+    backgroundColor: "#F0E2DF",
+    padding: 18,
+    borderRadius: 14,
+    marginTop: 25,
+  },
+  quoteTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#594D78",
+    marginBottom: 10,
+  },
+  quoteText: {
+    fontSize: 15,
+    color: "#443B50",
+    lineHeight: 23,
+  },
+  quoteAuthor: {
+    fontSize: 14,
+    color: "#777080",
+    marginTop: 8,
+    textAlign: "right",
+  },
+  offlineText: {
+    fontSize: 12,
+    color: "#777080",
+    marginTop: 8,
+  },
   continueButton: {
     backgroundColor: "#594D78",
     padding: 16,
     borderRadius: 14,
     alignItems: "center",
-    marginTop: 30,
+    marginTop: 20,
   },
   continueButtonText: {
     color: "#FFFFFF",
@@ -122,7 +193,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 14,
     alignItems: "center",
-    marginTop: 25,
+    marginTop: 20,
   },
   saveButtonText: {
     color: "#594D78",
