@@ -86,6 +86,9 @@ export default function RewardScreen() {
 
   return (
     <View style={styles.container}>
+      <Pressable style={styles.backButton} onPress={() => router.back()}>
+        <Text style={styles.backButtonText}>‹ </Text>
+      </Pressable>
       <Text style={styles.title}>A little reward for you!</Text>
 
       <Text style={styles.subtitle}>
@@ -120,7 +123,7 @@ export default function RewardScreen() {
         style={styles.continueButton}
         onPress={() => router.push("/explore")}
       >
-        <Text style={styles.continueButtonText}>Continue</Text>
+        <Text style={styles.continueButtonText}>Choose another mood</Text>{" "}
       </Pressable>
     </View>
   );
@@ -131,7 +134,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#FFF9F2",
     padding: 28,
-    justifyContent: "center",
+    paddingTop: 60,
   },
   title: {
     fontSize: 30,
@@ -209,6 +212,17 @@ const styles = StyleSheet.create({
   saveButtonText: {
     color: "#594D78",
     fontSize: 16,
+    fontWeight: "600",
+  },
+  backButton: {
+    alignSelf: "flex-start",
+    marginBottom: 24,
+    minHeight: 24,
+    justifyContent: "center",
+  },
+  backButtonText: {
+    fontSize: 20,
+    color: "#594D78",
     fontWeight: "600",
   },
 });
