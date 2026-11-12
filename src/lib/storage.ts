@@ -19,3 +19,29 @@ export async function loadRewards() {
     return [];
   }
 }
+const NAME_KEY = "user_name";
+
+export async function saveName(name: string) {
+  try {
+    await AsyncStorage.setItem(NAME_KEY, name);
+  } catch (error) {
+    console.log("Error saving name:", error);
+  }
+}
+
+export async function loadName() {
+  try {
+    return await AsyncStorage.getItem(NAME_KEY);
+  } catch (error) {
+    console.log("Error loading name:", error);
+    return null;
+  }
+}
+
+export async function resetApp() {
+  try {
+    await AsyncStorage.multiRemove([NAME_KEY, STORAGE_KEY]);
+  } catch (error) {
+    console.log("Error resetting app:", error);
+  }
+}

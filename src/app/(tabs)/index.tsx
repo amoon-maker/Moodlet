@@ -1,14 +1,29 @@
+import { loadName } from "@/lib/storage";
 import { Link } from "expo-router";
+import { useEffect, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
+  const [name, setName] = useState("");
+
+  useEffect(() => {
+    async function getName() {
+      const savedName = await loadName();
+      setName(savedName ?? "");
+    }
+
+    getName();
+  }, []);
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <Text style={styles.logo}>moodlet</Text>
 
         <View style={styles.welcome}>
+          <Text style={styles.greeting}>Hey, {name || "there"}!</Text>
+
           <Text style={styles.title}>A little boost for your day.</Text>
 
           <Text style={styles.subtitle}>
@@ -44,6 +59,11 @@ const styles = StyleSheet.create({
   },
   welcome: {
     gap: 18,
+  },
+  greeting: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#777080",
   },
   title: {
     fontSize: 38,

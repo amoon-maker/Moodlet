@@ -17,6 +17,15 @@ const moods = [
 export default function ExploreScreen() {
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
 
+  function handleContinue() {
+    if (!selectedMood) return;
+
+    router.push({
+      pathname: "/challenge",
+      params: { mood: selectedMood },
+    });
+  }
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.title}>How are you feeling?</Text>
@@ -50,23 +59,12 @@ export default function ExploreScreen() {
         })}
       </View>
 
-      <Text style={styles.selection}>
-        {selectedMood
-          ? `Selected: ${selectedMood}`
-          : "Select a mood to continue"}
-      </Text>
-
       <Pressable
         style={[styles.continueButton, !selectedMood && styles.disabledButton]}
         disabled={!selectedMood}
-        onPress={() =>
-          router.push({
-            pathname: "/challenge",
-            params: { mood: selectedMood! },
-          })
-        }
+        onPress={handleContinue}
       >
-        <Text style={styles.continueButtonText}>Continue</Text>
+        <Text style={styles.continueButtonText}>Find my challenge</Text>
       </Pressable>
     </ScrollView>
   );
@@ -126,18 +124,12 @@ const styles = StyleSheet.create({
     fontSize: 28,
     color: "#594D78",
   },
-  selection: {
-    textAlign: "center",
-    color: "#777080",
-    fontSize: 14,
-    marginTop: 28,
-  },
   continueButton: {
     backgroundColor: "#594D78",
     padding: 18,
     borderRadius: 16,
     alignItems: "center",
-    marginTop: 20,
+    marginTop: 30,
   },
   disabledButton: {
     backgroundColor: "#D8D1DF",

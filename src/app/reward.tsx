@@ -1,5 +1,5 @@
 import { loadRewards, saveRewards } from "@/lib/storage";
-import type { Quote } from "@/lib/types";
+import type { Quote, Reward } from "@/lib/types";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
@@ -61,6 +61,7 @@ export default function RewardScreen() {
     async function getQuote() {
       try {
         const data = await fetchQuote();
+        console.log("API quote:", data);
         setQuote(data);
       } catch (error) {
         setQuote(fallbackQuote);
@@ -74,12 +75,27 @@ export default function RewardScreen() {
   }, []);
 
   async function handleSaveReward() {
-    if (!selectedReward) return;
+    if (!selectedReward || !quote) return;
 
-    const savedRewards = await loadRewards();
-    const updatedRewards = [...savedRewards, selectedReward];
+    const savedRewards: Reward[] = await loadRewards();
 
-    await saveRewards(JSON.stringify(updatedRewards));
+    const newReward: Reward = {
+      ...selectedReward,
+      quote: quote.quote,
+      author: quote.author,
+    };
+
+    const alreadySaved = savedRewards.some(
+      (item) =>
+        item.mood === newReward.mood &&
+        item.meme === newReward.meme &&
+        item.quote === newReward.quote,
+    );
+
+    if (!alreadySaved) {
+      const updatedRewards = [...savedRewards, newReward];
+      await saveRewards(JSON.stringify(updatedRewards));
+    }
 
     router.push("/collection");
   }
@@ -115,7 +131,11 @@ export default function RewardScreen() {
         )}
       </View>
 
-      <Pressable style={styles.saveButton} onPress={handleSaveReward}>
+      <Pressable
+        style={styles.saveButton}
+        onPress={handleSaveReward}
+        disabled={isLoading || !quote}
+      >
         <Text style={styles.saveButtonText}>Save reward</Text>
       </Pressable>
 
@@ -123,7 +143,7 @@ export default function RewardScreen() {
         style={styles.continueButton}
         onPress={() => router.push("/explore")}
       >
-        <Text style={styles.continueButtonText}>Choose another mood</Text>{" "}
+        <Text style={styles.continueButtonText}>Choose another mood</Text>
       </Pressable>
     </View>
   );

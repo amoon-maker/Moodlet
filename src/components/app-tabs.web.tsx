@@ -44,7 +44,6 @@ export function TabButton({
       ref={undefined}
       style={({ pressed }) => (pressed ? styles.pressed : undefined)}
     >
-      {" "}
       <ThemedView
         type={isFocused ? "backgroundSelected" : "backgroundElement"}
         style={styles.tabButtonView}
