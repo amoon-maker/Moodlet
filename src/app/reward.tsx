@@ -1,47 +1,17 @@
+import { fetchCatGifs, fetchQuote, type GiphyGif } from "@/lib/api";
 import { loadRewards, saveRewards } from "@/lib/storage";
 import type { Quote, Reward } from "@/lib/types";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
-export async function fetchQuote(): Promise<Quote> {
-  const response = await fetch("https://dummyjson.com/quotes/random");
-
-  if (!response.ok) {
-    throw new Error("Could not load a quote.");
-  }
-
-  const data: Quote = await response.json();
-
-  return data;
-}
-const rewards = [
-  {
-    mood: "Happy",
-    meme: "When everything goes right for once.",
-    caption: "Enjoy this little win. You deserve it!",
-  },
-  {
-    mood: "Sad",
-    meme: "Me giving myself a little extra kindness today.",
-    caption: "It's okay to take things one step at a time.",
-  },
-  {
-    mood: "Stressed",
-    meme: "Me after finally taking a deep breath.",
-    caption: "One thing at a time. You've got this!",
-  },
-  {
-    mood: "Tired",
-    meme: "My bed and I have an appointment.",
-    caption: "Rest is productive too. Take it easy!",
-  },
-  {
-    mood: "Bored",
-    meme: "Me looking for something interesting to happen.",
-    caption: "A little curiosity can make any day better.",
-  },
-];
+const moodSearches: Record<string, string> = {
+  Happy: "funny happy cat",
+  Sad: "cute comforting cat",
+  Stressed: "confused stressed cat",
+  Tired: "sleepy tired cat",
+  Bored: "funny chaotic cat",
+};
 
 const fallbackQuote: Quote = {
   id: 0,
@@ -49,52 +19,93 @@ const fallbackQuote: Quote = {
   author: "Moodlet",
 };
 
+const fallbackGif: GiphyGif = {
+  id: "fallback",
+  title: "Moodlet cat",
+  url: "",
+  imageUrl: "https://cataas.com/cat",
+};
+
+const rewards = [
+  { mood: "Happy", caption: "Enjoy this little win. You deserve it!" },
+  { mood: "Sad", caption: "It's okay to take things one step at a time." },
+  { mood: "Stressed", caption: "One thing at a time. You've got this!" },
+  { mood: "Tired", caption: "Rest is productive too. Take it easy!" },
+  { mood: "Bored", caption: "A little curiosity can make any day better." },
+];
+
 export default function RewardScreen() {
   const { mood } = useLocalSearchParams<{ mood: string }>();
+
   const selectedReward = rewards.find((item) => item.mood === mood);
 
   const [quote, setQuote] = useState<Quote | null>(null);
+  const [catGif, setCatGif] = useState<GiphyGif | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [hasError, setHasError] = useState(false);
+  const [hasQuoteError, setHasQuoteError] = useState(false);
+  const [hasGifError, setHasGifError] = useState(false);
 
   useEffect(() => {
-    async function getQuote() {
+    async function loadReward() {
       try {
-        const data = await fetchQuote();
-        console.log("API quote:", data);
-        setQuote(data);
-      } catch (error) {
+        const [quoteResult, gifResult] = await Promise.allSettled([
+          fetchQuote(),
+          fetchCatGifs(moodSearches[mood || ""] || "funny cat"),
+        ]);
+
+        if (quoteResult.status === "fulfilled") {
+          setQuote(quoteResult.value);
+        } else {
+          setQuote(fallbackQuote);
+          setHasQuoteError(true);
+        }
+
+        if (gifResult.status === "fulfilled" && gifResult.value.length > 0) {
+          const randomIndex = Math.floor(
+            Math.random() * gifResult.value.length,
+          );
+          setCatGif(gifResult.value[randomIndex]);
+        } else {
+          setCatGif(fallbackGif);
+          setHasGifError(true);
+        }
+      } catch {
         setQuote(fallbackQuote);
-        setHasError(true);
+        setCatGif(fallbackGif);
+        setHasQuoteError(true);
+        setHasGifError(true);
       } finally {
         setIsLoading(false);
       }
     }
 
-    getQuote();
-  }, []);
+    loadReward();
+  }, [mood]);
 
   async function handleSaveReward() {
-    if (!selectedReward || !quote) return;
+    if (!selectedReward || !quote || !catGif) return;
 
     const savedRewards: Reward[] = await loadRewards();
 
     const newReward: Reward = {
-      ...selectedReward,
+      mood: selectedReward.mood,
+      meme: catGif.title || "Funny cat",
+      caption: selectedReward.caption,
       quote: quote.quote,
       author: quote.author,
+      gifUrl: catGif.imageUrl,
+      gifTitle: catGif.title,
     };
 
     const alreadySaved = savedRewards.some(
       (item) =>
         item.mood === newReward.mood &&
-        item.meme === newReward.meme &&
+        item.gifUrl === newReward.gifUrl &&
         item.quote === newReward.quote,
     );
 
     if (!alreadySaved) {
-      const updatedRewards = [...savedRewards, newReward];
-      await saveRewards(JSON.stringify(updatedRewards));
+      await saveRewards(JSON.stringify([...savedRewards, newReward]));
     }
 
     router.push("/collection");
@@ -105,6 +116,7 @@ export default function RewardScreen() {
       <Pressable style={styles.backButton} onPress={() => router.back()}>
         <Text style={styles.backButtonText}>‹ </Text>
       </Pressable>
+
       <Text style={styles.title}>A little reward for you!</Text>
 
       <Text style={styles.subtitle}>
@@ -112,7 +124,24 @@ export default function RewardScreen() {
         day.
       </Text>
 
-      <Text style={styles.meme}>{selectedReward?.meme}</Text>
+      <View style={styles.gifContainer}>
+        {isLoading ? (
+          <Text style={styles.loadingText}>Finding a cat for you...</Text>
+        ) : (
+          <Image
+            source={{ uri: catGif?.imageUrl }}
+            style={styles.gif}
+            resizeMode="contain"
+          />
+        )}
+      </View>
+
+      {hasGifError && (
+        <Text style={styles.offlineText}>
+          Showing a backup cat because GIFs couldn't load.
+        </Text>
+      )}
+
       <Text style={styles.caption}>{selectedReward?.caption}</Text>
 
       <View style={styles.quoteBox}>
@@ -124,7 +153,7 @@ export default function RewardScreen() {
           <>
             <Text style={styles.quoteText}>"{quote?.quote}"</Text>
             <Text style={styles.quoteAuthor}>— {quote?.author}</Text>
-            {hasError && (
+            {hasQuoteError && (
               <Text style={styles.offlineText}>Offline quote shown.</Text>
             )}
           </>
@@ -134,7 +163,7 @@ export default function RewardScreen() {
       <Pressable
         style={styles.saveButton}
         onPress={handleSaveReward}
-        disabled={isLoading || !quote}
+        disabled={isLoading || !quote || !catGif}
       >
         <Text style={styles.saveButtonText}>Save reward</Text>
       </Pressable>
@@ -167,14 +196,23 @@ const styles = StyleSheet.create({
     lineHeight: 26,
     color: "#777080",
   },
-  meme: {
-    fontSize: 22,
-    fontWeight: "600",
-    color: "#594D78",
-    textAlign: "center",
-    lineHeight: 32,
-    marginTop: 35,
+  gifContainer: {
+    height: 230,
+    marginTop: 25,
     marginBottom: 18,
+    backgroundColor: "#F0E2DF",
+    borderRadius: 18,
+    justifyContent: "center",
+    alignItems: "center",
+    overflow: "hidden",
+  },
+  gif: {
+    width: "100%",
+    height: "100%",
+  },
+  loadingText: {
+    color: "#777080",
+    fontSize: 15,
   },
   caption: {
     fontSize: 16,
@@ -209,6 +247,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#777080",
     marginTop: 8,
+    textAlign: "center",
   },
   continueButton: {
     backgroundColor: "#594D78",

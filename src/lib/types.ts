@@ -4,6 +4,8 @@ export type Reward = {
   caption: string;
   quote: string;
   author: string;
+  gifUrl: string;
+  gifTitle: string;
 };
 
 export type Quote = {
