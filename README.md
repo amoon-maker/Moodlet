@@ -1,56 +1,103 @@
-# Welcome to your Expo app 👋
+# Moodlet
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## About the Project
 
-## Get started
+Moodlet is a mobile application I developed as my final project. The idea behind it is to bring a little fun and positivity into everyday life.
 
-1. Install dependencies
+Users can choose how they are feeling, such as happy, sad, stressed, tired, or bored. Based on their mood, the app gives them a small challenge to try. Once they complete it, they unlock a matching reward with a funny cat GIF, a positive caption, and an inspirational quote.
 
-   ```bash
-   npm install
-   ```
+I wanted to create something simple, enjoyable, and easy to use.
 
-2. Start the app
+## Features
 
-   ```bash
-   npx expo start
-   ```
+- **Welcome Screen:** Enter your name and receive a personalized greeting.
+- **Mood Selection:** Choose from five different moods.
+- **Mini-Challenges:** Get small, random challenges based on your mood.
+- **Funny Rewards:** Unlock matching cat GIFs and positive messages.
+- **Positive Quotes:** Get random quotes using the DummyJSON API.
+- **My Collection:** Save your favorite rewards, revisit them, or delete them individually.
+- **Local Storage:** Your name and saved rewards remain available when you reopen the app.
+- **Backup Content:** The app includes fallback content if an API is unavailable.
 
-In the output, you'll find options to open the app in a
+## Technologies Used
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- React Native
+- Expo
+- Expo Router
+- TypeScript
+- AsyncStorage
+- DummyJSON Quotes API
+- GIPHY API (extra for fun)
 
-You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## APIs
 
-## Get a fresh project
+**DummyJSON Quotes API**
 
-When you're ready, run:
+Used to fetch random inspirational quotes. This is a public API that does not require an API key.
+
+https://dummyjson.com/quotes/random
+
+**GIPHY API**
+
+Used to find funny cat GIFs related to the selected mood. This is an optional feature and requires an API key.
+
+## Getting Started
+
+### 1. Install dependencies
 
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **example** directory and create a blank **src/app** directory where you can start developing.
+### 2. Configure GIPHY (optional)
 
-### Other setup steps
+Create a `.env` file in the project root:
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+```env
+EXPO_PUBLIC_GIPHY_API_KEY=your_api_key_here
+```
 
-## Learn more
+If no GIPHY key is configured, the app can still run using its backup content.
 
-To learn more about developing your project with Expo, look at the following resources:
+Do not include the `.env` file when submitting the project.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### 3. Start the application
 
-## Join the community
+```bash
+npx expo start
+```
 
-Join our community of developers creating universal apps.
+### 4. Open on Android
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Start an Android emulator and press `a` in the terminal to open Moodlet.
+
+## Project Structure
+
+```text
+src/
+├── app/
+│   ├── (tabs)/
+│   │   ├── index.tsx
+│   │   ├── explore.tsx
+│   │   └── collection.tsx
+│   ├── challenge.tsx
+│   ├── reward.tsx
+│   ├── saved-reward.tsx
+│   ├── welcome.tsx
+│   └── _layout.tsx
+├── components/
+├── constants/
+├── hooks/
+└── lib/
+    ├── api.ts
+    ├── storage.ts
+    └── types.ts
+```
+
+## Final Note
+
+This project gave me the opportunity to practise what I've learned throughout the course, especially working with React Native, TypeScript, APIs, navigation, and local storage.
+
+There are still things I would like to improve in the future, but I'm happy with what I've learned and what I've been able to build so far.
+
+**Thank you**

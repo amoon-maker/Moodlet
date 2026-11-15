@@ -43,3 +43,13 @@ example
 /android
 
 .env
+
+
+.vscode/
+.claude/
+.cursorrules
+CLAUDE.md
+AGENTS.md
+
+# Git
+.git/
