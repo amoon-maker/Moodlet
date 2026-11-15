@@ -46,6 +46,7 @@ export default function CollectionScreen() {
     router.push({
       pathname: "/saved-reward",
       params: {
+        id: item.id,
         mood: item.mood,
         meme: item.meme,
         caption: item.caption,
@@ -68,7 +69,7 @@ export default function CollectionScreen() {
           style: "destructive",
           onPress: async () => {
             const updatedRewards = savedRewards.filter(
-              (reward) => reward !== item,
+              (reward) => reward.id !== item.id,
             );
 
             await saveRewards(JSON.stringify(updatedRewards));
@@ -86,7 +87,7 @@ export default function CollectionScreen() {
       <FlatList
         style={styles.list}
         data={savedRewards}
-        keyExtractor={(item, index) => `${item.mood}-${index}`}
+        keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <Pressable style={styles.rewardCard} onPress={() => openReward(item)}>
             <Pressable

@@ -1,3 +1,4 @@
+import type { Reward } from "@/lib/types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const STORAGE_KEY = "saved_rewards";
@@ -10,10 +11,10 @@ export async function saveRewards(rewards: string) {
   }
 }
 
-export async function loadRewards() {
+export async function loadRewards(): Promise<Reward[]> {
   try {
     const rewards = await AsyncStorage.getItem(STORAGE_KEY);
-    return rewards ? JSON.parse(rewards) : [];
+    return rewards ? (JSON.parse(rewards) as Reward[]) : [];
   } catch (error) {
     console.log("Error loading rewards:", error);
     return [];

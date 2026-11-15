@@ -1,16 +1,12 @@
-
+import { loadRewards, saveRewards } from "@/lib/storage";
+import type { Reward } from "@/lib/types";
 import { router, useLocalSearchParams } from "expo-router";
-import {
-  Image,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Alert, Image, Pressable, StyleSheet, Text, View } from "react-native";
 
 export default function SavedRewardScreen() {
-  const { mood, meme, caption, quote, author, gifUrl } =
+  const { id, mood, meme, caption, quote, author, gifUrl } =
     useLocalSearchParams<{
+      id: string;
       mood: string;
       meme: string;
       caption: string;
@@ -18,6 +14,32 @@ export default function SavedRewardScreen() {
       author: string;
       gifUrl: string;
     }>();
+
+  async function handleDeleteReward() {
+    if (!id) return;
+
+    Alert.alert(
+      "Delete reward?",
+      "This reward will be permanently removed from your collection.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            const savedRewards: Reward[] = await loadRewards();
+
+            const updatedRewards = savedRewards.filter(
+              (reward) => reward.id !== id,
+            );
+
+            await saveRewards(JSON.stringify(updatedRewards));
+            router.replace("/(tabs)/collection");
+          },
+        },
+      ],
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -46,6 +68,9 @@ export default function SavedRewardScreen() {
         <Text style={styles.quoteText}>"{quote}"</Text>
         <Text style={styles.quoteAuthor}>— {author}</Text>
       </View>
+      <Pressable style={styles.deleteRewardButton} onPress={handleDeleteReward}>
+        <Text style={styles.deleteRewardButtonText}>Delete reward</Text>
+      </Pressable>
     </View>
   );
 }
@@ -123,5 +148,15 @@ const styles = StyleSheet.create({
     color: "#777080",
     marginTop: 8,
     textAlign: "right",
+  },
+  deleteRewardButton: {
+    alignItems: "center",
+    padding: 16,
+    marginTop: 18,
+  },
+  deleteRewardButtonText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#A45D5D",
   },
 });

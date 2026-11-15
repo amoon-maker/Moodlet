@@ -1,4 +1,5 @@
 export type Reward = {
+  id: string;
   mood: string;
   meme: string;
   caption: string;

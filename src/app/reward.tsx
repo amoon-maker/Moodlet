@@ -196,6 +196,7 @@ export default function RewardScreen() {
     const savedRewards: Reward[] = await loadRewards();
 
     const newReward: Reward = {
+      id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
       mood: selectedReward.mood,
       meme: catGif.title || "Funny cat",
       caption: selectedReward.caption,
