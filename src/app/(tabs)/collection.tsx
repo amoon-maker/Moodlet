@@ -51,6 +51,8 @@ export default function CollectionScreen() {
         caption: item.caption,
         quote: item.quote ?? "",
         author: item.author ?? "",
+        gifUrl: item.gifUrl ?? "",
+        gifTitle: item.gifTitle ?? "",
       },
     });
   }

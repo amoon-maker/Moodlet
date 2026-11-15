@@ -1,14 +1,22 @@
+
 import { router, useLocalSearchParams } from "expo-router";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  Image,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 export default function SavedRewardScreen() {
-  const { mood, meme, caption, quote, author } =
+  const { mood, meme, caption, quote, author, gifUrl } =
     useLocalSearchParams<{
       mood: string;
       meme: string;
       caption: string;
       quote: string;
       author: string;
+      gifUrl: string;
     }>();
 
   return (
@@ -21,15 +29,21 @@ export default function SavedRewardScreen() {
 
       <Text style={styles.mood}>{mood}</Text>
 
-      <Text style={styles.meme}>{meme}</Text>
+      {gifUrl ? (
+        <Image
+          source={{ uri: gifUrl }}
+          style={styles.gif}
+          resizeMode="contain"
+        />
+      ) : (
+        <Text style={styles.meme}>{meme}</Text>
+      )}
 
       <Text style={styles.caption}>{caption}</Text>
 
       <View style={styles.quoteBox}>
         <Text style={styles.quoteTitle}>A little extra positivity</Text>
-
         <Text style={styles.quoteText}>"{quote}"</Text>
-
         <Text style={styles.quoteAuthor}>— {author}</Text>
       </View>
     </View>
@@ -65,6 +79,13 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#594D78",
     marginBottom: 20,
+  },
+  gif: {
+    width: "100%",
+    height: 230,
+    backgroundColor: "#F0E2DF",
+    borderRadius: 18,
+    marginBottom: 18,
   },
   meme: {
     fontSize: 22,

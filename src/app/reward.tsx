@@ -27,23 +27,95 @@ const fallbackGif: GiphyGif = {
 };
 
 const rewards = [
-  { mood: "Happy", caption: "Enjoy this little win. You deserve it!" },
-  { mood: "Sad", caption: "It's okay to take things one step at a time." },
-  { mood: "Stressed", caption: "One thing at a time. You've got this!" },
-  { mood: "Tired", caption: "Rest is productive too. Take it easy!" },
-  { mood: "Bored", caption: "A little curiosity can make any day better." },
+  {
+    mood: "Happy",
+    captions: [
+      "Enjoy this little win. You deserve it!",
+      "Today looks a little brighter already!",
+      "Keep that beautiful energy going!",
+      "Sometimes the little things are the biggest wins.",
+      "You deserve every bit of this happiness!",
+      "Main character energy activated!",
+      "A little happiness looks good on you!",
+      "Save this moment. You earned it!",
+    ],
+  },
+  {
+    mood: "Sad",
+    captions: [
+      "It's okay to take things one step at a time.",
+      "You deserve the same kindness you give others.",
+      "Not every day has to be a good day.",
+      "Be gentle with yourself today.",
+      "You're allowed to rest and start again tomorrow.",
+      "Even small steps count. You're doing enough.",
+      "Sending you a little virtual hug!",
+      "This feeling doesn't define your whole story.",
+    ],
+  },
+  {
+    mood: "Stressed",
+    captions: [
+      "One thing at a time. You've got this!",
+      "Take a breath. You're doing better than you think.",
+      "You don't have to figure everything out today.",
+      "Pause. Breathe. Carry on.",
+      "Give yourself permission to slow down.",
+      "You've handled difficult days before!",
+      "Small progress is still progress.",
+      "Not everything needs your attention right now.",
+    ],
+  },
+  {
+    mood: "Tired",
+    captions: [
+      "Rest is productive too. Take it easy!",
+      "You deserve a little recharge time.",
+      "Your bed is calling. No judgment here!",
+      "It's okay to slow down today.",
+      "Even superheroes need a break!",
+      "Take it easy. You've done enough for today.",
+      "A little rest can go a long way.",
+      "Your energy matters. Look after yourself!",
+    ],
+  },
+  {
+    mood: "Bored",
+    captions: [
+      "A little curiosity can make any day better.",
+      "Time to make something interesting happen!",
+      "Your next little adventure starts now.",
+      "Boredom is just creativity waiting to happen!",
+      "Go find something unexpected!",
+      "Life needs a little randomness sometimes.",
+      "Who knows what fun you'll discover today?",
+      "Make today a little less ordinary!",
+    ],
+  },
 ];
 
 export default function RewardScreen() {
   const { mood } = useLocalSearchParams<{ mood: string }>();
 
-  const selectedReward = rewards.find((item) => item.mood === mood);
+  const [selectedReward, setSelectedReward] = useState(() => {
+    const moodRewards = rewards.find((item) => item.mood === mood);
+
+    if (!moodRewards) return undefined;
+
+    const randomIndex = Math.floor(Math.random() * moodRewards.captions.length);
+
+    return {
+      mood: moodRewards.mood,
+      caption: moodRewards.captions[randomIndex],
+    };
+  });
 
   const [quote, setQuote] = useState<Quote | null>(null);
   const [catGif, setCatGif] = useState<GiphyGif | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasQuoteError, setHasQuoteError] = useState(false);
   const [hasGifError, setHasGifError] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     async function loadReward() {
@@ -81,6 +153,42 @@ export default function RewardScreen() {
 
     loadReward();
   }, [mood]);
+
+  async function handleRefreshReward() {
+    setIsRefreshing(true);
+
+    const moodRewards = rewards.find((item) => item.mood === mood);
+
+    if (moodRewards) {
+      const randomIndex = Math.floor(
+        Math.random() * moodRewards.captions.length,
+      );
+
+      setSelectedReward({
+        mood: moodRewards.mood,
+        caption: moodRewards.captions[randomIndex],
+      });
+    }
+
+    // Find another matching GIF
+    try {
+      const gifs = await fetchCatGifs(moodSearches[mood || ""] || "funny cat");
+
+      if (gifs.length > 0) {
+        const randomIndex = Math.floor(Math.random() * gifs.length);
+        setCatGif(gifs[randomIndex]);
+        setHasGifError(false);
+      } else {
+        setCatGif(fallbackGif);
+        setHasGifError(true);
+      }
+    } catch {
+      setCatGif(fallbackGif);
+      setHasGifError(true);
+    } finally {
+      setIsRefreshing(false);
+    }
+  }
 
   async function handleSaveReward() {
     if (!selectedReward || !quote || !catGif) return;
@@ -141,6 +249,16 @@ export default function RewardScreen() {
           Showing a backup cat because GIFs couldn't load.
         </Text>
       )}
+
+      <Pressable
+        style={styles.refreshButton}
+        onPress={handleRefreshReward}
+        disabled={isRefreshing || isLoading}
+      >
+        <Text style={styles.refreshButtonText}>
+          {isRefreshing ? "Finding another surprise..." : "↻ Surprise me!"}
+        </Text>
+      </Pressable>
 
       <Text style={styles.caption}>{selectedReward?.caption}</Text>
 
@@ -283,5 +401,17 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: "#594D78",
     fontWeight: "600",
+  },
+
+  refreshButton: {
+    alignSelf: "center",
+    paddingVertical: 10,
+    paddingHorizontal: 18,
+    marginBottom: 12,
+  },
+  refreshButtonText: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#594D78",
   },
 });
