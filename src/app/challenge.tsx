@@ -2,6 +2,8 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
+import { getRandomChallenge } from "@/lib/challenges";
+
 const challenges = [
   {
     mood: "Happy",
@@ -77,12 +79,9 @@ export default function ChallengeScreen() {
   const [challenge] = useState(() => {
     if (!selectedMood) return "Try taking a moment for yourself today.";
 
-    const randomIndex = Math.floor(
-      Math.random() * selectedMood.challenges.length,
-    );
-
-    return selectedMood.challenges[randomIndex];
+    return getRandomChallenge(selectedMood.challenges);
   });
+
   return (
     <View style={styles.container}>
       <Pressable style={styles.backButton} onPress={() => router.back()}>

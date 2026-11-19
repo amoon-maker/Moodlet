@@ -5,6 +5,8 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
+import { getRandomCaption } from "@/lib/rewards";
+
 const moodSearches: Record<string, string> = {
   Happy: "funny happy cat",
   Sad: "cute comforting cat",
@@ -102,11 +104,9 @@ export default function RewardScreen() {
 
     if (!moodRewards) return undefined;
 
-    const randomIndex = Math.floor(Math.random() * moodRewards.captions.length);
-
     return {
       mood: moodRewards.mood,
-      caption: moodRewards.captions[randomIndex],
+      caption: getRandomCaption(moodRewards.captions),
     };
   });
 
@@ -160,13 +160,9 @@ export default function RewardScreen() {
     const moodRewards = rewards.find((item) => item.mood === mood);
 
     if (moodRewards) {
-      const randomIndex = Math.floor(
-        Math.random() * moodRewards.captions.length,
-      );
-
       setSelectedReward({
         mood: moodRewards.mood,
-        caption: moodRewards.captions[randomIndex],
+        caption: getRandomCaption(moodRewards.captions),
       });
     }
 
