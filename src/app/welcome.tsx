@@ -5,12 +5,17 @@ import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
 export default function WelcomeScreen() {
   const [name, setName] = useState("");
+  const [error, setError] = useState("");
 
   async function handleContinue() {
     const trimmedName = name.trim();
 
-    if (!trimmedName) return;
+    if (!trimmedName) {
+      setError("Please enter your name to continue.");
+      return;
+    }
 
+    setError("");
     await saveName(trimmedName);
     router.replace("/(tabs)");
   }
@@ -29,16 +34,17 @@ export default function WelcomeScreen() {
             placeholder="Enter your name"
             placeholderTextColor="#9991A0"
             value={name}
-            onChangeText={setName}
+            onChangeText={(value) => {
+              setName(value);
+              setError("");
+            }}
             maxLength={30}
           />
+
+          {error ? <Text style={styles.error}>{error}</Text> : null}
         </View>
 
-        <Pressable
-          style={[styles.button, !name.trim() && styles.disabledButton]}
-          disabled={!name.trim()}
-          onPress={handleContinue}
-        >
+        <Pressable style={styles.button} onPress={handleContinue}>
           <Text style={styles.buttonText}>Let's go!</Text>
         </Pressable>
       </View>
@@ -82,14 +88,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#443B50",
   },
+  error: {
+    fontSize: 14,
+    color: "#C04B4B",
+  },
   button: {
     backgroundColor: "#E9DFF5",
     padding: 18,
     borderRadius: 18,
     alignItems: "center",
-  },
-  disabledButton: {
-    opacity: 0.5,
   },
   buttonText: {
     fontSize: 17,

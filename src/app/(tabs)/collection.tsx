@@ -1,7 +1,8 @@
+import RewardCard from "@/components/reward-card";
 import { loadRewards, resetApp, saveRewards } from "@/lib/storage";
 import type { Reward } from "@/lib/types";
-import { router } from "expo-router";
-import { useEffect, useState } from "react";
+import { router, useFocusEffect } from "expo-router";
+import { useCallback, useState } from "react";
 import {
   Alert,
   FlatList,
@@ -14,14 +15,16 @@ import {
 export default function CollectionScreen() {
   const [savedRewards, setSavedRewards] = useState<Reward[]>([]);
 
-  useEffect(() => {
-    async function getSavedRewards() {
-      const rewards = await loadRewards();
-      setSavedRewards(rewards);
-    }
+  useFocusEffect(
+    useCallback(() => {
+      async function getSavedRewards() {
+        const rewards = await loadRewards();
+        setSavedRewards(rewards);
+      }
 
-    getSavedRewards();
-  }, []);
+      getSavedRewards();
+    }, []),
+  );
 
   function handleReset() {
     Alert.alert(
@@ -89,19 +92,11 @@ export default function CollectionScreen() {
         data={savedRewards}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <Pressable style={styles.rewardCard} onPress={() => openReward(item)}>
-            <Pressable
-              style={styles.deleteButton}
-              onPress={() => handleDeleteReward(item)}
-              hitSlop={8}
-            >
-              <Text style={styles.deleteButtonText}>×</Text>
-            </Pressable>
-
-            <Text style={styles.mood}>{item.mood}</Text>
-            <Text style={styles.meme}>{item.meme}</Text>
-            <Text style={styles.caption}>{item.caption}</Text>
-          </Pressable>
+          <RewardCard
+            item={item}
+            onPress={() => openReward(item)}
+            onDelete={() => handleDeleteReward(item)}
+          />
         )}
         ListEmptyComponent={
           <Text style={styles.subtitle}>

@@ -4,7 +4,7 @@ import type { Quote, Reward } from "@/lib/types";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
-
+import BackButton from "@/components/back-button";
 import { getRandomCaption } from "@/lib/rewards";
 
 const moodSearches: Record<string, string> = {
@@ -218,9 +218,7 @@ export default function RewardScreen() {
 
   return (
     <View style={styles.container}>
-      <Pressable style={styles.backButton} onPress={() => router.back()}>
-        <Text style={styles.backButtonText}>‹ </Text>
-      </Pressable>
+      <BackButton />
 
       <Text style={styles.title}>A little reward for you!</Text>
 
@@ -386,17 +384,6 @@ const styles = StyleSheet.create({
   saveButtonText: {
     color: "#594D78",
     fontSize: 16,
-    fontWeight: "600",
-  },
-  backButton: {
-    alignSelf: "flex-start",
-    marginBottom: 24,
-    minHeight: 24,
-    justifyContent: "center",
-  },
-  backButtonText: {
-    fontSize: 20,
-    color: "#594D78",
     fontWeight: "600",
   },
 

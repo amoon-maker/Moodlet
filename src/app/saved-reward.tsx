@@ -2,6 +2,7 @@ import { loadRewards, saveRewards } from "@/lib/storage";
 import type { Reward } from "@/lib/types";
 import { router, useLocalSearchParams } from "expo-router";
 import { Alert, Image, Pressable, StyleSheet, Text, View } from "react-native";
+import BackButton from "@/components/back-button";
 
 export default function SavedRewardScreen() {
   const { id, mood, meme, caption, quote, author, gifUrl } =
@@ -43,9 +44,7 @@ export default function SavedRewardScreen() {
 
   return (
     <View style={styles.container}>
-      <Pressable style={styles.backButton} onPress={() => router.back()}>
-        <Text style={styles.backButtonText}>‹ </Text>
-      </Pressable>
+      <BackButton />
 
       <Text style={styles.title}>Your saved reward</Text>
 
@@ -81,17 +80,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFF9F2",
     padding: 28,
     paddingTop: 60,
-  },
-  backButton: {
-    alignSelf: "flex-start",
-    marginBottom: 24,
-    minHeight: 24,
-    justifyContent: "center",
-  },
-  backButtonText: {
-    fontSize: 20,
-    color: "#594D78",
-    fontWeight: "600",
   },
   title: {
     fontSize: 30,
